@@ -32,7 +32,7 @@ function sizeCanvas(w, h) { if (cv.width !== w || cv.height !== h) { cv.width = 
 function colorFor(c) { return `hsl(${(c * 47) % 360} 85% 55%)`; }
 function draw(src, w, h, dets) {
   sizeCanvas(w, h); ctx.drawImage(src, 0, 0, w, h); const lw = Math.max(2, w / 400), fs = Math.max(12, w / 55);
-  ctx.lineWidth = lw; ctx.font = `600 ${fs}px system-ui,sans-serif`; ctx.textBaseline = 'top';
+  ctx.lineWidth = lw; ctx.font = `600 ${fs}px Geist, system-ui, sans-serif`; ctx.textBaseline = 'top';
   for (const d of dets) {
     const col = colorFor(d.cls); ctx.strokeStyle = col; ctx.strokeRect(d.x, d.y, d.w, d.h);
     if (!S.labels) continue;
