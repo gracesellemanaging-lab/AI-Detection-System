@@ -61,7 +61,7 @@ async function loop() {
   requestAnimationFrame(loop);
 }
 function begin(m) { mode = m; $('empty').hidden = true; tracker.reset(); if (!running) { running = true; loop(); } }
-function stopAll() { running = false; cam.stop(); video.pause(); video.removeAttribute('src'); video.load(); mode = 'idle'; $('sCam').textContent = 'Off'; $('sFps').textContent = 0; $('bStart').disabled = !ready; $('bStop').disabled = $('bSwitch').disabled = true; $('empty').hidden = false; }
+function stopAll() { running = false; cam.stop(); video.pause(); video.removeAttribute('src'); video.srcObject = null; mode = 'idle'; $('sCam').textContent = 'Off'; $('sFps').textContent = 0; $('bStart').disabled = !ready; $('bStop').disabled = $('bSwitch').disabled = true; $('empty').hidden = false; }
 // controls
 $('bStart').onclick = async () => {
   alertMsg(''); stopAll();
@@ -78,7 +78,7 @@ $('fImg').onchange = async e => {
 $('fVid').onchange = async e => {
   const f = e.target.files[0]; if (!f || !ready) return; alertMsg(''); stopAll();
   video.src = URL.createObjectURL(f); video.loop = false;
-  try { await video.play(); begin('video'); } catch (x) { alertMsg('Could not play that video.'); } e.target.value = '';
+  try { await Camera.play(video); begin('video'); } catch (x) { alertMsg('Could not play that video.'); } e.target.value = '';
 };
 // ONNX Runtime loader: local first, CDN fallback
 function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('load failed: ' + src)); document.head.appendChild(s); }); }
