@@ -6,7 +6,7 @@ class Camera {
   async start(deviceId) {
     if (!Camera.supported()) throw new Error('Camera API not available. Use HTTPS (GitHub Pages) and a modern browser.');
     this.stop();
-    const v = { width: { ideal: 1280 }, height: { ideal: 720 } }; if (deviceId) v.deviceId = { exact: deviceId };
+    const v = { width: { ideal: 1280 }, height: { ideal: 720 } }; if (deviceId) v.deviceId = { exact: deviceId }; else v.facingMode = { ideal: 'user' }; // front camera by default
     try { this.stream = await navigator.mediaDevices.getUserMedia({ video: v, audio: false }); }
     catch (e) {
       const m = { NotAllowedError: 'Camera permission denied. Allow camera access in the browser address bar.', NotFoundError: 'No camera found.', NotReadableError: 'Camera is in use by another application.' };
