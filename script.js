@@ -6,7 +6,7 @@ let history = store.get('history', []), det, cam, tracker = new Tracker(), mode 
 const video = $('video'), cv = $('out'), ctx = cv.getContext('2d');
 function alertMsg(m) { $('alert').textContent = m; $('alert').hidden = !m; }
 // navigation
-$('nav').onclick = e => { const v = e.target.dataset.v; if (!v) return; document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b === e.target)); document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v)); };
+$('nav').onclick = e => { const v = e.target.dataset.v; if (!v) return; document.querySelectorAll('#nav button').forEach(b => { const on = b === e.target; b.classList.toggle('on', on); b.setAttribute('aria-current', on ? 'page' : 'false'); }); document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v)); };
 // settings
 function syncSettings() {
   $('conf').value = $('sConf').value = Math.round(S.conf * 100); $('sIou').value = Math.round(S.iou * 100);
@@ -61,7 +61,7 @@ async function loop() {
   requestAnimationFrame(loop);
 }
 function begin(m) { mode = m; $('empty').hidden = true; tracker.reset(); if (!running) { running = true; loop(); } }
-function stopAll() { running = false; cam.stop(); video.pause(); video.removeAttribute('src'); video.load(); mode = 'idle'; $('sCam').textContent = 'Off'; $('sFps').textContent = 0; $('bStart').disabled = !ready; $('bStop').disabled = $('bSwitch').disabled = true; }
+function stopAll() { running = false; cam.stop(); video.pause(); video.removeAttribute('src'); video.load(); mode = 'idle'; $('sCam').textContent = 'Off'; $('sFps').textContent = 0; $('bStart').disabled = !ready; $('bStop').disabled = $('bSwitch').disabled = true; $('empty').hidden = false; }
 // controls
 $('bStart').onclick = async () => {
   alertMsg(''); stopAll();
@@ -90,8 +90,8 @@ async function init() {
   ort.env.wasm.wasmPaths = base; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
   det = new Detector(C); $('modelState').textContent = 'Model: loading…';
   try {
-    const info = await det.load(p => { if (p !== null) $('modelBar').style.width = Math.round(p * 100) + '%'; $('modelState').textContent = 'Model: downloading' + (p !== null ? ' ' + Math.round(p * 100) + '%' : '…'); });
-    $('modelBar').style.width = '100%'; $('modelState').textContent = `Model ready (${info.provider}, ${info.classes} classes)`; ready = true; $('bStart').disabled = false;
+    const info = await det.load(p => { if (p !== null) { $('modelBar').style.width = Math.round(p * 100) + '%'; const bar = document.querySelector('.bar'); if (bar) bar.setAttribute('aria-valuenow', Math.round(p * 100)); } $('modelState').textContent = 'Model: downloading' + (p !== null ? ' ' + Math.round(p * 100) + '%' : '…'); });
+    $('modelBar').style.width = '100%'; const bar = document.querySelector('.bar'); if (bar) bar.setAttribute('aria-valuenow', 100); $('modelState').textContent = `Model ready (${info.provider}, ${info.classes} classes)`; ready = true; $('bStart').disabled = false;
   } catch (e) { fail(e.message); }
 }
 function fail(m) { $('modelState').textContent = 'Model: failed'; alertMsg(m); }

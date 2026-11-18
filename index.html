@@ -1,28 +1,79 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AccuVision AI – Object and Person Detection</title><link rel="icon" href="assets/logo.svg"><link rel="stylesheet" href="style.css"></head>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AccuVision AI – Object and Person Detection</title>
+<link rel="icon" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
 <body>
-<aside class="side"><div class="brand"><img src="assets/logo.svg" alt="" width="28" height="28"><b>AccuVision AI</b></div>
-<nav id="nav"><button data-v="dashboard" class="on">Dashboard</button><button data-v="live">Live Detection</button><button data-v="history">Detection History</button><button data-v="settings">Settings</button><button data-v="about">About</button></nav>
-<div class="model" id="modelBox"><span id="modelState">Model: not loaded</span><div class="bar"><i id="modelBar"></i></div></div></aside>
-<main>
-<div id="alert" class="alert" hidden></div>
-<section id="v-dashboard" class="view on"><h1>Dashboard</h1>
-<div class="stats"><div><span id="sPeople">0</span>Total people (now)</div><div><span id="sObjects">0</span>Total objects (now)</div><div><span id="sFps">0</span>Current FPS</div><div><span id="sCam">Off</span>Camera status</div></div>
-<p class="note">Counts show what the model detects in the current frame. Detection confidence is how sure the model is that a box contains that class, not identification accuracy.</p></section>
-<section id="v-live" class="view"><h1>Live Detection</h1>
-<div class="ctrl"><button id="bStart">Start camera</button><button id="bStop" disabled>Stop camera</button><button id="bSwitch" disabled>Switch camera</button>
-<label class="file">Upload image<input id="fImg" type="file" accept="image/*" hidden></label><label class="file">Upload video<input id="fVid" type="file" accept="video/*" hidden></label>
-<label class="sl">Confidence <b id="confVal">45%</b><input id="conf" type="range" min="5" max="95" value="45"></label></div>
-<div class="stage"><video id="video" playsinline muted></video><canvas id="out"></canvas><div id="empty" class="empty">Start the camera or upload an image or video to begin.</div></div></section>
-<section id="v-history" class="view"><h1>Detection History</h1><div class="ctrl"><button id="bClear">Clear history</button></div>
-<div class="tw"><table><thead><tr><th>ID</th><th>Object</th><th>Confidence</th><th>Timestamp</th></tr></thead><tbody id="hBody"></tbody></table></div></section>
-<section id="v-settings" class="view"><h1>Settings</h1><div class="form">
-<label>Confidence threshold <b id="sConfVal"></b><input id="sConf" type="range" min="5" max="95"></label>
-<label>NMS IoU threshold <b id="sIouVal"></b><input id="sIou" type="range" min="10" max="90"></label>
-<label class="chk"><input id="sLabels" type="checkbox"> Show labels and confidence</label>
-<label class="chk"><input id="sHist" type="checkbox"> Save detection history (this browser only)</label></div></section>
-<section id="v-about" class="view"><h1>About</h1><p class="note">AccuVision AI runs a YOLO model in your browser with ONNX Runtime Web (WebGPU, with WebAssembly fallback). No video or image leaves your device. Tracking IDs are temporary and only link boxes between consecutive frames; they do not identify anyone.</p></section>
+<a class="skip" href="#main">Skip to content</a>
+<aside class="side" aria-label="Primary navigation">
+  <div class="brand"><img src="assets/logo.svg" alt="" width="28" height="28"><b>AccuVision AI</b></div>
+  <nav id="nav" aria-label="Views">
+    <button data-v="dashboard" class="on" aria-current="page">Dashboard</button>
+    <button data-v="live">Live Detection</button>
+    <button data-v="history">Detection History</button>
+    <button data-v="settings">Settings</button>
+    <button data-v="about">About</button>
+  </nav>
+  <div class="model" id="modelBox" role="status" aria-live="polite">
+    <span id="modelState">Model: not loaded</span>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Model loading progress"><i id="modelBar"></i></div>
+  </div>
+</aside>
+<main id="main">
+  <div id="alert" class="alert" role="alert" aria-live="assertive" hidden></div>
+  <section id="v-dashboard" class="view on" aria-labelledby="h-dashboard"><h1 id="h-dashboard">Dashboard</h1>
+    <div class="stats" aria-live="polite">
+      <div><span id="sPeople">0</span>Total people (now)</div>
+      <div><span id="sObjects">0</span>Total objects (now)</div>
+      <div><span id="sFps">0</span>Current FPS</div>
+      <div><span id="sCam">Off</span>Camera status</div>
+    </div>
+    <p class="note">Counts show what the model detects in the current frame. Detection confidence is how sure the model is that a box contains that class, not identification accuracy.</p>
+  </section>
+  <section id="v-live" class="view" aria-labelledby="h-live"><h1 id="h-live">Live Detection</h1>
+    <div class="ctrl" role="toolbar" aria-label="Detection controls">
+      <button id="bStart">Start camera</button>
+      <button id="bStop" disabled>Stop camera</button>
+      <button id="bSwitch" disabled>Switch camera</button>
+      <label class="file">Upload image<input id="fImg" type="file" accept="image/*" hidden></label>
+      <label class="file">Upload video<input id="fVid" type="file" accept="video/*" hidden></label>
+      <label class="sl">Confidence <b id="confVal">45%</b><input id="conf" type="range" min="5" max="95" value="45" aria-label="Confidence threshold"></label>
+    </div>
+    <div class="stage" role="img" aria-label="Detection preview">
+      <video id="video" playsinline muted aria-hidden="true"></video>
+      <canvas id="out" aria-label="Detection results canvas"></canvas>
+      <div id="empty" class="empty" role="status">Start the camera or upload an image or video to begin.</div>
+    </div>
+  </section>
+  <section id="v-history" class="view" aria-labelledby="h-history"><h1 id="h-history">Detection History</h1>
+    <div class="ctrl"><button id="bClear">Clear history</button></div>
+    <div class="tw">
+      <table aria-label="Detection history">
+        <caption class="sr-only">Saved detections, newest first</caption>
+        <thead><tr><th scope="col">ID</th><th scope="col">Object</th><th scope="col">Confidence</th><th scope="col">Timestamp</th></tr></thead>
+        <tbody id="hBody"></tbody>
+      </table>
+    </div>
+  </section>
+  <section id="v-settings" class="view" aria-labelledby="h-settings"><h1 id="h-settings">Settings</h1>
+    <div class="form">
+      <label>Confidence threshold <b id="sConfVal"></b><input id="sConf" type="range" min="5" max="95" aria-label="Confidence threshold"></label>
+      <label>NMS IoU threshold <b id="sIouVal"></b><input id="sIou" type="range" min="10" max="90" aria-label="NMS IoU threshold"></label>
+      <label class="chk"><input id="sLabels" type="checkbox"> Show labels and confidence</label>
+      <label class="chk"><input id="sHist" type="checkbox"> Save detection history (this browser only)</label>
+    </div>
+  </section>
+  <section id="v-about" class="view" aria-labelledby="h-about"><h1 id="h-about">About</h1>
+    <p class="note">AccuVision AI runs a YOLO model in your browser with ONNX Runtime Web (WebGPU, with WebAssembly fallback). No video or image leaves your device. Tracking IDs are temporary and only link boxes between consecutive frames; they do not identify anyone.</p>
+  </section>
 </main>
 <script src="config.js"></script><script src="detector.js"></script><script src="tracker.js"></script><script src="camera.js"></script><script src="script.js"></script>
-</body></html>
+</body>
+</html>
